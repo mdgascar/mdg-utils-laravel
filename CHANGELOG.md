@@ -9,7 +9,7 @@ GitHub release; Packagist picks up the tag.
 First release. Laravel 12 and 13, PHP 8.3+, `mdgascar/mdg-utils` ^0.7.
 
 - Validation rules `mg_phone` / `MalagasyPhone` and `mg_ariary` / `AriaryAmount`, with
-  messages in English, French and Malagasy.
+  messages in English and French.
 - Eloquent casts `AsPhoneNumber` (stored as E.164) and `AsAriary` (stored as a number).
 - Blade directives `@ariary`, `@mgPhone`, `@mgWords` and `@mgDate`.
 - Config `mdg-utils.ariary`: grouping, symbol position and decimal separator.

@@ -61,7 +61,7 @@ final class ValidationTest extends TestCase
         yield 'ariary string rule, en' => [AriaryAmount::NAME, 'en', self::AMOUNT_MESSAGE_EN];
         yield 'ariary rule object, en' => [new AriaryAmount(), 'en', self::AMOUNT_MESSAGE_EN];
         yield 'phone string rule, fr' => [MalagasyPhone::NAME, 'fr', 'Le champ field doit être un numéro de mobile malgache valide.'];
-        yield 'ariary rule object, mg' => [new AriaryAmount(), 'mg', 'Tsy maintsy vola ariary marina ny field.'];
+        yield 'ariary rule object, a locale without its own file falls back to en' => [new AriaryAmount(), 'mg', self::AMOUNT_MESSAGE_EN];
     }
 
     #[DataProvider('messages')]
