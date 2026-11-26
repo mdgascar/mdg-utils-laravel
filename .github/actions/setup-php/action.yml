@@ -1,0 +1,27 @@
+name: Set up mdg-utils-laravel PHP
+description: Install PHP with Xdebug and resolve dependencies for that PHP and Laravel version.
+inputs:
+  php-version:
+    description: PHP version
+    default: "8.3"
+  laravel-version:
+    description: Laravel major version
+    default: "13"
+runs:
+  using: composite
+  steps:
+    - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+      with:
+        php-version: ${{ inputs.php-version }}
+        coverage: xdebug
+        tools: composer:v2
+    # Library convention: no composer.lock, so each PHP version resolves compatible tools.
+    - shell: bash
+      env:
+        LARAVEL: ${{ inputs.laravel-version }}
+        # Testbench major = Laravel major - 2.
+        TESTBENCH_OFFSET: "2"
+      run: |
+        composer update --no-interaction --no-progress --prefer-dist --with-all-dependencies \
+          --with "illuminate/support:^${LARAVEL}.0" \
+          --with "orchestra/testbench:^$((LARAVEL - TESTBENCH_OFFSET)).0"

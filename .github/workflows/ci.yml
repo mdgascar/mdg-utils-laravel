@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    uses: mdgascar/.github/.github/workflows/reusable-lint.yml@0610e49630c07c4854ea85312207c26722fc1437 # main
+
+  php-lint:
+    name: PHP lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-php
+      - run: composer lint
+
+  test:
+    name: Tests (PHP ${{ matrix.php }}, Laravel ${{ matrix.laravel }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # PHP under active or security support: https://www.php.net/supported-versions.php
+        php: ["8.3", "8.4", "8.5"]
+        # Laravel under bug or security support: https://laravel.com/docs/releases#support-policy
+        laravel: ["12", "13"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-php
+        with:
+          php-version: ${{ matrix.php }}
+          laravel-version: ${{ matrix.laravel }}
+      - run: composer test
