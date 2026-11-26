@@ -1,0 +1,42 @@
+name: Bug report
+description: Wrong output or a crash
+labels: [bug, triage]
+body:
+  - type: dropdown
+    id: module
+    attributes:
+      label: Area
+      options:
+        - validation rules
+        - Eloquent casts
+        - Blade directives
+        - config
+    validations:
+      required: true
+  - type: input
+    id: language
+    attributes:
+      label: Package and PHP version
+      placeholder: "mdgascar/mdg-utils-laravel 0.1.0, Laravel 13, PHP 8.4"
+    validations:
+      required: true
+  - type: textarea
+    id: input
+    attributes:
+      label: Input
+      description: The exact code, e.g. `Validator::make(['phone' => '034 12 345 67'], ['phone' => 'mg_phone'])`.
+      render: php
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected output
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual output or error
+    validations:
+      required: true

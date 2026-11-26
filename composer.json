@@ -1,0 +1,79 @@
+{
+    "name": "mdgascar/mdg-utils-laravel",
+    "description": "Laravel validation rules, Eloquent casts and Blade directives for Malagasy phone numbers, Ariary amounts, number words and dates.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "laravel",
+        "madagascar",
+        "malagasy",
+        "ariary",
+        "phone-number",
+        "validation",
+        "eloquent",
+        "blade"
+    ],
+    "homepage": "https://github.com/mdgascar/mdg-utils-laravel",
+    "support": {
+        "issues": "https://github.com/mdgascar/mdg-utils-laravel/issues",
+        "source": "https://github.com/mdgascar/mdg-utils-laravel",
+        "security": "https://github.com/mdgascar/mdg-utils-laravel/security/policy",
+        "docs": "https://mdgascar.github.io/mdg-utils-docs/"
+    },
+    "require": {
+        "php": ">=8.3",
+        "illuminate/contracts": "^12.0 || ^13.0",
+        "illuminate/database": "^12.0 || ^13.0",
+        "illuminate/support": "^12.0 || ^13.0",
+        "illuminate/validation": "^12.0 || ^13.0",
+        "illuminate/view": "^12.0 || ^13.0",
+        "mdgascar/mdg-utils": "^0.7"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "orchestra/testbench": "^10.0 || ^11.0",
+        "phpstan/phpstan": "^2.3",
+        "phpstan/phpstan-strict-rules": "^2.1",
+        "phpunit/phpunit": "^11.5 || ^12.5 || ^13.4",
+        "povils/phpmnd": "^3.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Mdgascar\\MdgUtils\\Laravel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mdgascar\\MdgUtils\\Laravel\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Mdgascar\\MdgUtils\\Laravel\\MdgUtilsServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "scripts": {
+        "test": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --coverage-text=build/coverage.txt --coverage-clover=build/clover.xml",
+            "php tools/coverage/check.php build/clover.xml"
+        ],
+        "cs": "php-cs-fixer check --diff",
+        "cs-fix": "php-cs-fixer fix",
+        "stan": "phpstan analyse --no-progress",
+        "mnd": "phpmnd src tests config lang tools --extensions=all --ignore-numbers=0,1,-1 --include-numeric-string",
+        "lint": [
+            "@composer validate --strict",
+            "@cs",
+            "@stan",
+            "@mnd"
+        ]
+    }
+}
