@@ -1,0 +1,13 @@
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+
+parameters:
+    level: max
+    # No syntax newer than the minimum supported PHP version.
+    phpVersion: 80300
+    paths:
+        - src
+        - tests
+        - config
+        - lang
+        - tools

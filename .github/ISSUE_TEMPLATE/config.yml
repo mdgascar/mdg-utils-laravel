@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Wrong output from the core (words, phone, ariary, date)
+    url: https://github.com/mdgascar/mdg-utils-php/issues/new/choose
+    about: Formatting and parsing come from mdgascar/mdg-utils; report them there.
+  - name: Wrong data, new helper, new module or new language
+    url: https://github.com/mdgascar/mdg-utils-spec/issues/new/choose
+    about: Data and behaviour are decided in the spec first.
+  - name: Security vulnerability
+    url: https://github.com/mdgascar/mdg-utils-laravel/security/advisories/new
+    about: Report security issues privately, never in a public issue.

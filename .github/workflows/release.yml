@@ -1,0 +1,40 @@
+name: Release
+
+# Merging dev into main releases the package: tag v<version> and a GitHub release, if not
+# there yet. The version is the first "## x.y.z" heading of CHANGELOG.md, and the release
+# notes are that section. Packagist builds versions from the tag (GitHub webhook).
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # tag and GitHub release
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Tag and release the CHANGELOG version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHANGELOG: CHANGELOG.md
+        run: |
+          version=$(grep -m1 -oP '^## \K[0-9]+\.[0-9]+\.[0-9]+' "$CHANGELOG")
+          if [ -z "$version" ]; then
+            echo "::error::No '## x.y.z' heading in $CHANGELOG"
+            exit 1
+          fi
+          tag="v$version"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "$tag already released"
+            exit 0
+          fi
+          notes="$RUNNER_TEMP/notes.md"
+          awk -v v="$version" '$0 == "## " v {f=1; next} /^## /{if (f) exit} f' "$CHANGELOG" > "$notes"
+          gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "$tag" --notes-file "$notes"
