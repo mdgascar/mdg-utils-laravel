@@ -4,6 +4,12 @@
 Merging `dev` into `main` tags the version in the first heading below and creates the
 GitHub release; Packagist picks up the tag.
 
+## 0.3.0
+
+- **Breaking:** `@mgWords` is now `@mgSpell`, in the domain's words (core 0.9.0). It also reads
+  exact decimal text: `@mgSpell('2000000000000000.9')` → `roa tapitrisa lavitrisa faingo sivy`.
+  Requires `mdgascar/mdg-utils` ^0.9.
+
 ## 0.2.0
 
 - **Breaking**: `MdgUtilsServiceProvider::validationMessageKey()` is now

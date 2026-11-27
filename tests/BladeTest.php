@@ -20,6 +20,8 @@ final class BladeTest extends TestCase
     private const float WORDS_DECIMAL = 0.5;
     // 30 000 000: 'telopolo tapitrisa' in the standard system.
     private const int TRADITIONAL_NUMBER = 30_000_000;
+    // A float this large has lost its decimals; text keeps them (core spec words rule 13).
+    private const string EXACT_TEXT = '2000000000000000.9';
     private const int YEAR = 2026;
     private const int MONTH = 11;
     private const int DAY = 23;
@@ -37,10 +39,11 @@ final class BladeTest extends TestCase
             ['v' => PhoneNumber::parse(self::E164)],
             '+261 34 12 345 67',
         ];
-        yield 'words from an int' => ['@mgWords($v)', ['v' => self::WORDS_NUMBER], 'iraika amby roapolo'];
-        yield 'words from a float' => ['@mgWords($v)', ['v' => self::WORDS_DECIMAL], 'aotra faingo dimy'];
+        yield 'words from an int' => ['@mgSpell($v)', ['v' => self::WORDS_NUMBER], 'iraika amby roapolo'];
+        yield 'words from a float' => ['@mgSpell($v)', ['v' => self::WORDS_DECIMAL], 'aotra faingo dimy'];
+        yield 'spell exact decimal text' => ['@mgSpell($v)', ['v' => self::EXACT_TEXT], 'roa tapitrisa lavitrisa faingo sivy'];
         yield 'words in the traditional system' => [
-            '@mgWords($v, \Mdgascar\MdgUtils\Words\NumberSystem::Traditional)',
+            '@mgSpell($v, \Mdgascar\MdgUtils\Words\NumberSystem::Traditional)',
             ['v' => self::TRADITIONAL_NUMBER],
             'telo safatsiroa',
         ];
@@ -54,7 +57,7 @@ final class BladeTest extends TestCase
             ['v' => '2026-11-23'],
             '23/11/2026',
         ];
-        foreach (['@ariary($v)', '@mgPhone($v)', '@mgWords($v)', '@mgDate($v)'] as $template) {
+        foreach (['@ariary($v)', '@mgPhone($v)', '@mgSpell($v)', '@mgDate($v)'] as $template) {
             yield "{$template} prints nothing for null" => [$template, ['v' => null], ''];
         }
     }
@@ -78,7 +81,7 @@ final class BladeTest extends TestCase
 
     public function testOutputIsEscaped(): void
     {
-        $compiled = Blade::compileString('@mgWords($v)');
+        $compiled = Blade::compileString('@mgSpell($v)');
 
         self::assertStringContainsString('echo e(', $compiled);
     }

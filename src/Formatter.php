@@ -48,16 +48,13 @@ final readonly class Formatter
     }
 
     /**
-     * `@mgWords(21)` prints `iraika amby roapolo`; pass `NumberSystem::Traditional` for one name
-     * per power of ten: `@mgWords(30000000, NumberSystem::Traditional)` prints `telo safatsiroa`.
+     * `@mgSpell(21)` prints `iraika amby roapolo`; pass `NumberSystem::Traditional` for one name
+     * per power of ten: `@mgSpell(30000000, NumberSystem::Traditional)` prints `telo safatsiroa`.
+     * Decimal text is read exactly: `@mgSpell('2000000000000000.9')`.
      */
-    public function words(int|float|null $number, NumberSystem $system = NumberSystem::Standard): string
+    public function spell(int|float|string|null $number, NumberSystem $system = NumberSystem::Standard): string
     {
-        return match (true) {
-            $number === null => self::NOTHING,
-            \is_int($number) => NumberWords::fromInt($number, $system),
-            default => NumberWords::fromFloat($number, $system),
-        };
+        return $number === null ? self::NOTHING : NumberWords::spell($number, $system);
     }
 
     /**

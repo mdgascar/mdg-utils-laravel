@@ -64,7 +64,7 @@ $order = Order::create(['phone' => '034 12 345 67', 'total' => 'Ar 1 500']);
 $order->phone->operator;  // Operator::Yas
 $order->phone->e164;      // '+261341234567'
 $order->total->amount;    // 1500
-$order->total->toWords(); // 'dimanjato sy arivo ariary'
+$order->total->spell();   // 'dimanjato sy arivo ariary'
 ```
 
 Assigning parses the value, so an invalid phone number or amount throws
@@ -75,11 +75,11 @@ Assigning parses the value, so an invalid phone number or amount throws
 ```blade
 @ariary($order->total)     {{-- Ar 1 500 --}}
 @mgPhone($order->phone)    {{-- 034 12 345 67 --}}
-@mgWords(2026)             {{-- enina amby roapolo sy roa arivo --}}
+@mgSpell(2026)             {{-- enina amby roapolo sy roa arivo --}}
 @mgDate($order->created_at) {{-- 27 Novambra 2026 --}}
 
 @mgPhone($order->phone, \Mdgascar\MdgUtils\Phone\PhoneNumberFormat::International)
-@mgWords(30000000, \Mdgascar\MdgUtils\Words\NumberSystem::Traditional) {{-- telo safatsiroa --}}
+@mgSpell(30000000, \Mdgascar\MdgUtils\Words\NumberSystem::Traditional) {{-- telo safatsiroa --}}
 @mgDate($order->created_at, \Mdgascar\MdgUtils\Date\DateStyle::Numeric)
 ```
 
