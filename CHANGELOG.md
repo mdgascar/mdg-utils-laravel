@@ -11,6 +11,8 @@ GitHub release; Packagist picks up the tag.
   `(new MalagasyPhone())->passes($value)`.
 - `AriaryAmount` and `AsAriary` take an optional `AriaryOptions` in their constructor; without
   it they use the app's config as before.
+- `@mgWords` takes a `NumberSystem`: `@mgWords(30000000, NumberSystem::Traditional)` prints
+  `telo safatsiroa`, one name per power of ten. Requires `mdgascar/mdg-utils` ^0.8.
 
 ## 0.1.0
 

@@ -79,6 +79,7 @@ Assigning parses the value, so an invalid phone number or amount throws
 @mgDate($order->created_at) {{-- 27 Novambra 2026 --}}
 
 @mgPhone($order->phone, \Mdgascar\MdgUtils\Phone\PhoneNumberFormat::International)
+@mgWords(30000000, \Mdgascar\MdgUtils\Words\NumberSystem::Traditional) {{-- telo safatsiroa --}}
 @mgDate($order->created_at, \Mdgascar\MdgUtils\Date\DateStyle::Numeric)
 ```
 
