@@ -14,6 +14,7 @@ use Mdgascar\MdgUtils\Laravel\AriaryOptions;
 use Mdgascar\MdgUtils\Laravel\Rules\AriaryAmount;
 use Mdgascar\MdgUtils\Laravel\Rules\MalagasyPhone;
 use Mdgascar\MdgUtils\Laravel\Tests\TestCase;
+use Mdgascar\MdgUtils\Phone\PhoneLineType;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 final class ValidationTest extends TestCase
@@ -26,7 +27,10 @@ final class ValidationTest extends TestCase
     private const int JSON_AMOUNT = 1500;
     // A dot is not a decimal point by default.
     private const string DOT_DECIMAL_TEXT = '1.5';
-    private const string PHONE_MESSAGE_EN = 'The field field must be a valid Malagasy mobile number.';
+    private const string PHONE_MESSAGE_EN = 'The field field must be a valid Malagasy phone number.';
+    private const string MOBILE_MESSAGE_EN = 'The field field must be a valid Malagasy mobile number.';
+    private const string FIXED_LINE_PHONE = '020 22 421 19';
+    private const string MOBILE_RULE = MalagasyPhone::NAME . ':mobile';
     private const string AMOUNT_MESSAGE_EN = 'The field field must be a valid Ariary amount.';
 
     /**
@@ -39,6 +43,11 @@ final class ValidationTest extends TestCase
             yield "phone {$form}, international" => [$rule, '+261 34 12 345 67', true];
             yield "phone {$form}, unknown operator" => [$rule, self::UNKNOWN_OPERATOR_PHONE, false];
             yield "phone {$form}, not text" => [$rule, [self::VALID_PHONE], false];
+            yield "phone {$form}, fixed line" => [$rule, self::FIXED_LINE_PHONE, true];
+        }
+        foreach (['string rule' => self::MOBILE_RULE, 'rule object' => new MalagasyPhone(PhoneLineType::Mobile)] as $form => $rule) {
+            yield "mobile {$form}, mobile" => [$rule, self::VALID_PHONE, true];
+            yield "mobile {$form}, fixed line" => [$rule, self::FIXED_LINE_PHONE, false];
         }
         foreach (['string rule' => AriaryAmount::NAME, 'rule object' => new AriaryAmount()] as $form => $rule) {
             yield "ariary {$form}, text" => [$rule, self::VALID_AMOUNT, true];
@@ -64,7 +73,10 @@ final class ValidationTest extends TestCase
         yield 'phone rule object, en' => [new MalagasyPhone(), 'en', self::PHONE_MESSAGE_EN];
         yield 'ariary string rule, en' => [AriaryAmount::NAME, 'en', self::AMOUNT_MESSAGE_EN];
         yield 'ariary rule object, en' => [new AriaryAmount(), 'en', self::AMOUNT_MESSAGE_EN];
-        yield 'phone string rule, fr' => [MalagasyPhone::NAME, 'fr', 'Le champ field doit être un numéro de mobile malgache valide.'];
+        yield 'phone string rule, fr' => [MalagasyPhone::NAME, 'fr', 'Le champ field doit être un numéro de téléphone malgache valide.'];
+        yield 'mobile string rule, en' => [self::MOBILE_RULE, 'en', self::MOBILE_MESSAGE_EN];
+        yield 'mobile rule object, en' => [new MalagasyPhone(PhoneLineType::Mobile), 'en', self::MOBILE_MESSAGE_EN];
+        yield 'mobile string rule, fr' => [self::MOBILE_RULE, 'fr', 'Le champ field doit être un numéro de mobile malgache valide.'];
         yield 'ariary rule object, a locale without its own file falls back to en' => [new AriaryAmount(), 'mg', self::AMOUNT_MESSAGE_EN];
     }
 

@@ -78,21 +78,21 @@ final class AriaryOptionsTest extends TestCase
     #[DataProvider('readableAmounts')]
     public function testReadAcceptsAnAmountInEveryFormAnAppHasIt(mixed $value): void
     {
-        self::assertEquals(self::AMOUNT, AriaryOptions::fromConfig([])->read($value)->amount);
+        self::assertEquals(self::AMOUNT, AriaryOptions::fromConfig([])->read($value)->amount());
     }
 
     public function testReadUsesTheConfiguredDecimalSeparator(): void
     {
         $options = AriaryOptions::fromConfig([AriaryOptions::DECIMAL => 'dot']);
 
-        self::assertSame(self::DECIMAL_AMOUNT, $options->read('1 500.5')->amount);
+        self::assertSame(self::DECIMAL_AMOUNT, $options->read('1 500.5')->amount());
     }
 
     public function testEnglishStyleConfigReadsEnglishStyleText(): void
     {
         $options = AriaryOptions::fromConfig([AriaryOptions::GROUPING => 'comma', AriaryOptions::DECIMAL => 'dot']);
 
-        self::assertSame(self::DECIMAL_AMOUNT, $options->read('1,500.5')->amount);
+        self::assertSame(self::DECIMAL_AMOUNT, $options->read('1,500.5')->amount());
         self::assertNull($options->tryRead('1 500'));
     }
 
