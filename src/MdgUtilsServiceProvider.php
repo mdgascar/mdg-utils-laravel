@@ -18,8 +18,9 @@ use Mdgascar\MdgUtils\Laravel\Rules\MalagasyPhone;
  */
 final class MdgUtilsServiceProvider extends ServiceProvider
 {
-    /** Config key, translation namespace and `vendor:publish` tag of the config. */
+    /** Config key and `vendor:publish` tag of the config. */
     public const string NAME = 'mdg-utils';
+    /** `vendor:publish` tag of the translations. */
     public const string LANG_TAG = self::NAME . '-lang';
 
     private const string CONFIG_FILE = __DIR__ . '/../config/mdg-utils.php';
@@ -33,14 +34,6 @@ final class MdgUtilsServiceProvider extends ServiceProvider
         'mgWords' => 'words',
         'mgDate' => 'date',
     ];
-
-    /**
-     * The translation key of a rule's message, e.g. `mdg-utils::validation.mg_phone`.
-     */
-    public static function validationMessageKey(string $rule): string
-    {
-        return self::NAME . '::validation.' . $rule;
-    }
 
     public function register(): void
     {
@@ -59,23 +52,32 @@ final class MdgUtilsServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes([self::CONFIG_FILE => $this->app->configPath(self::NAME . '.php')], self::NAME);
-        $this->publishes([self::LANG_DIR => $this->app->langPath('vendor/' . self::NAME)], self::LANG_TAG);
-        $this->loadTranslationsFrom(self::LANG_DIR, self::NAME);
-        $this->callAfterResolving(ValidationFactory::class, self::registerRules(...));
-        foreach (self::DIRECTIVES as $directive => $method) {
-            Blade::directive($directive, static fn(string $expression): string => self::echo($method, $expression));
+        $this->publishes([self::LANG_DIR => $this->app->langPath('vendor/' . Translation::NAMESPACE)], self::LANG_TAG);
+        $this->loadTranslationsFrom(self::LANG_DIR, Translation::NAMESPACE);
+        $this->callAfterResolving(ValidationFactory::class, $this->registerRules(...));
+        self::registerBladeDirectives();
+    }
+
+    /**
+     * The string rules use the rule objects, so both forms always agree.
+     */
+    private function registerRules(ValidationFactory $validation): void
+    {
+        $rules = [
+            MalagasyPhone::NAME => static fn(): MalagasyPhone => new MalagasyPhone(),
+            // Built per validation, so it reads the options the app has at that moment.
+            AriaryAmount::NAME => fn(): AriaryAmount => new AriaryAmount($this->app->make(AriaryOptions::class)),
+        ];
+        foreach ($rules as $name => $rule) {
+            $validation->extend($name, static fn(string $attribute, mixed $value): bool => $rule()->passes($value));
+            $validation->replacer($name, self::defaultMessage(...));
         }
     }
 
-    private static function registerRules(ValidationFactory $validation): void
+    private static function registerBladeDirectives(): void
     {
-        $rules = [
-            MalagasyPhone::NAME => MalagasyPhone::passes(...),
-            AriaryAmount::NAME => AriaryAmount::passes(...),
-        ];
-        foreach ($rules as $name => $passes) {
-            $validation->extend($name, static fn(string $attribute, mixed $value): bool => $passes($value));
-            $validation->replacer($name, self::defaultMessage(...));
+        foreach (self::DIRECTIVES as $directive => $method) {
+            Blade::directive($directive, static fn(string $expression): string => self::echo($method, $expression));
         }
     }
 
@@ -91,7 +93,7 @@ final class MdgUtilsServiceProvider extends ServiceProvider
         if ($message !== 'validation.' . $rule) {
             return $message;
         }
-        $translated = $validator->getTranslator()->get(self::validationMessageKey($rule));
+        $translated = $validator->getTranslator()->get(Translation::validationKey($rule));
 
         return $validator->makeReplacements(\is_string($translated) ? $translated : $message, $attribute, $rule, $parameters);
     }
