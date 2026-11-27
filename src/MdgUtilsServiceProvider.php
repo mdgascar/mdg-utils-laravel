@@ -31,7 +31,7 @@ final class MdgUtilsServiceProvider extends ServiceProvider
     private const array DIRECTIVES = [
         'ariary' => 'ariary',
         'mgPhone' => 'phone',
-        'mgWords' => 'words',
+        'mgSpell' => 'spell',
         'mgDate' => 'date',
     ];
 
