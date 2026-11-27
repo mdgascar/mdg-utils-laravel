@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Mdgascar\MdgUtils\Laravel\Casts;
 
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 use Mdgascar\MdgUtils\Ariary\Ariary;
@@ -20,8 +21,19 @@ use Mdgascar\MdgUtils\MdgUtilsException;
  *
  * @implements CastsAttributes<Ariary, Ariary|int|float|string>
  */
-final class AsAriary implements CastsAttributes
+final readonly class AsAriary implements CastsAttributes
 {
+    private AriaryOptions $options;
+
+    /**
+     * @param AriaryOptions|null $options how to read assigned text; the app's config when
+     *                                    omitted, since Eloquent builds casts with `new`
+     */
+    public function __construct(?AriaryOptions $options = null)
+    {
+        $this->options = $options ?? Container::getInstance()->make(AriaryOptions::class);
+    }
+
     /**
      * @param array<string, mixed> $attributes
      */
@@ -45,7 +57,7 @@ final class AsAriary implements CastsAttributes
      */
     public function set(Model $model, string $key, mixed $value, array $attributes): int|float|null
     {
-        return $value === null ? null : app(AriaryOptions::class)->read($value)->amount;
+        return $value === null ? null : $this->options->read($value)->amount;
     }
 
     /**

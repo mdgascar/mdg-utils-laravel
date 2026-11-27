@@ -34,6 +34,9 @@ $request->validate([
 | `mg_phone` / `MalagasyPhone` | `034 12 345 67`, `+261 34 12 345 67`, `0341234567` | `031 12 345 67` (no operator), anything not text |
 | `mg_ariary` / `AriaryAmount` | `Ar 1 500`, `1.500 Ar`, `1 500,50`, `1500` from JSON | `-1`, `1.5` (a dot is not a decimal point by default), `abc` |
 
+Outside a rules array, `(new MalagasyPhone())->passes($value)` returns the same answer as a
+bool. `new AriaryAmount($options)` reads with other `AriaryOptions` than the app's config.
+
 Messages come in English and French and follow the app locale. To change them or add a
 language, run `php artisan vendor:publish --tag=mdg-utils-lang` and edit or add
 `lang/vendor/mdg-utils/{locale}/validation.php`, or use Laravel's usual custom messages.
