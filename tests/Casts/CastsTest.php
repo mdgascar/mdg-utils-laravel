@@ -27,6 +27,9 @@ final class CastsTest extends TestCase
     // How database drivers return integer and decimal columns.
     private const string INTEGER_COLUMN_TEXT = '1500';
     private const string DECIMAL_COLUMN_TEXT = '1500.20';
+    private const string DECIMAL_DIGITS = '1500.2';
+    // More digits than a float holds: a decimal column keeps them, and so does the cast.
+    private const string EXACT_COLUMN_TEXT = '2000000000000000.9';
 
     public function testAPhoneNumberIsStoredAsE164AndReadAsAPhoneNumber(): void
     {
@@ -67,40 +70,41 @@ final class CastsTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{mixed, int|float}>
+     * @return iterable<string, array{mixed, string}>
      */
     public static function assignedAmounts(): iterable
     {
-        yield 'text' => ['Ar 1 500', self::AMOUNT];
-        yield 'decimal text' => ['1 500,2 Ar', self::DECIMAL_AMOUNT];
-        yield 'an int' => [self::AMOUNT, self::AMOUNT];
-        yield 'an Ariary' => [Ariary::fromFloat(self::DECIMAL_AMOUNT), self::DECIMAL_AMOUNT];
+        yield 'text' => ['Ar 1 500', self::INTEGER_COLUMN_TEXT];
+        yield 'decimal text' => ['1 500,2 Ar', self::DECIMAL_DIGITS];
+        yield 'an int' => [self::AMOUNT, self::INTEGER_COLUMN_TEXT];
+        yield 'an Ariary' => [Ariary::fromFloat(self::DECIMAL_AMOUNT), self::DECIMAL_DIGITS];
     }
 
     #[DataProvider('assignedAmounts')]
-    public function testAnAmountIsStoredAsAPlainNumber(mixed $assigned, int|float $stored): void
+    public function testAnAmountIsStoredAsItsExactDigits(mixed $assigned, string $stored): void
     {
         self::assertSame($stored, (new Order(['total' => $assigned]))->getAttributes()['total']);
     }
 
     /**
-     * @return iterable<string, array{mixed, int|float}>
+     * @return iterable<string, array{mixed, string}>
      */
     public static function storedAmounts(): iterable
     {
-        yield 'an int' => [self::AMOUNT, self::AMOUNT];
-        yield 'a float' => [self::DECIMAL_AMOUNT, self::DECIMAL_AMOUNT];
-        yield 'integer column text' => [self::INTEGER_COLUMN_TEXT, self::AMOUNT];
-        yield 'decimal column text' => [self::DECIMAL_COLUMN_TEXT, self::DECIMAL_AMOUNT];
+        yield 'an int' => [self::AMOUNT, self::INTEGER_COLUMN_TEXT];
+        yield 'a float' => [self::DECIMAL_AMOUNT, self::DECIMAL_DIGITS];
+        yield 'integer column text' => [self::INTEGER_COLUMN_TEXT, self::INTEGER_COLUMN_TEXT];
+        yield 'decimal column text' => [self::DECIMAL_COLUMN_TEXT, self::DECIMAL_DIGITS];
+        yield 'a decimal column beyond any float' => [self::EXACT_COLUMN_TEXT, self::EXACT_COLUMN_TEXT];
     }
 
     #[DataProvider('storedAmounts')]
-    public function testAStoredAmountIsReadAsAnAriary(mixed $stored, int|float $amount): void
+    public function testAStoredAmountIsReadAsAnAriaryWithoutRounding(mixed $stored, string $digits): void
     {
         $order = (new Order())->setRawAttributes(['total' => $stored]);
 
         self::assertInstanceOf(Ariary::class, $order->total);
-        self::assertSame($amount, $order->total->amount);
+        self::assertSame($digits, $order->total->digits);
     }
 
     public function testAStoredValueThatIsNotANumberThrowsInvalidType(): void
@@ -121,7 +125,7 @@ final class CastsTest extends TestCase
     {
         $cast = new AsAriary(new AriaryOptions(Grouping::Comma, SymbolPosition::Before, DecimalSeparator::Dot));
 
-        self::assertSame(self::DECIMAL_AMOUNT, $cast->set(new Order(), 'total', '1,500.2', []));
+        self::assertSame(self::DECIMAL_DIGITS, $cast->set(new Order(), 'total', '1,500.2', []));
     }
 
     private function assertInvalidType(\Closure $action): void

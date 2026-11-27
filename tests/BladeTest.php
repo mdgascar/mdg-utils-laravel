@@ -17,6 +17,7 @@ final class BladeTest extends TestCase
     private const float DECIMAL_AMOUNT = 1500.5;
     private const string E164 = '+261341234567';
     private const int WORDS_NUMBER = 21;
+    private const int ORDINAL_NUMBER = 3;
     private const float WORDS_DECIMAL = 0.5;
     // 30 000 000: 'telopolo tapitrisa' in the standard system.
     private const int TRADITIONAL_NUMBER = 30_000_000;
@@ -47,6 +48,8 @@ final class BladeTest extends TestCase
             ['v' => self::TRADITIONAL_NUMBER],
             'telo safatsiroa',
         ];
+        yield 'ordinal' => ['@mgOrdinal($v)', ['v' => self::ORDINAL_NUMBER], 'fahatelo'];
+        yield 'ordinal of one' => ['@mgOrdinal($v)', ['v' => 1], 'voalohany'];
         yield 'date from a DateTime' => [
             '@mgDate($v)',
             ['v' => new \DateTimeImmutable(\sprintf('%d-%02d-%02d', self::YEAR, self::MONTH, self::DAY))],
@@ -57,7 +60,7 @@ final class BladeTest extends TestCase
             ['v' => '2026-11-23'],
             '23/11/2026',
         ];
-        foreach (['@ariary($v)', '@mgPhone($v)', '@mgSpell($v)', '@mgDate($v)'] as $template) {
+        foreach (['@ariary($v)', '@mgPhone($v)', '@mgSpell($v)', '@mgOrdinal($v)', '@mgDate($v)'] as $template) {
             yield "{$template} prints nothing for null" => [$template, ['v' => null], ''];
         }
     }

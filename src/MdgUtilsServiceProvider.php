@@ -32,6 +32,7 @@ final class MdgUtilsServiceProvider extends ServiceProvider
         'ariary' => 'ariary',
         'mgPhone' => 'phone',
         'mgSpell' => 'spell',
+        'mgOrdinal' => 'ordinal',
         'mgDate' => 'date',
     ];
 
@@ -64,12 +65,12 @@ final class MdgUtilsServiceProvider extends ServiceProvider
     private function registerRules(ValidationFactory $validation): void
     {
         $rules = [
-            MalagasyPhone::NAME => static fn(): MalagasyPhone => new MalagasyPhone(),
+            MalagasyPhone::NAME => static fn(array $parameters): MalagasyPhone => MalagasyPhone::fromParameters($parameters),
             // Built per validation, so it reads the options the app has at that moment.
             AriaryAmount::NAME => fn(): AriaryAmount => new AriaryAmount($this->app->make(AriaryOptions::class)),
         ];
         foreach ($rules as $name => $rule) {
-            $validation->extend($name, static fn(string $attribute, mixed $value): bool => $rule()->passes($value));
+            $validation->extend($name, static fn(string $attribute, mixed $value, array $parameters): bool => $rule($parameters)->passes($value));
             $validation->replacer($name, self::defaultMessage(...));
         }
     }
@@ -93,7 +94,7 @@ final class MdgUtilsServiceProvider extends ServiceProvider
         if ($message !== 'validation.' . $rule) {
             return $message;
         }
-        $translated = $validator->getTranslator()->get(Translation::validationKey($rule));
+        $translated = $validator->getTranslator()->get(Translation::validationKey(Translation::messageName($rule, $parameters)));
 
         return $validator->makeReplacements(\is_string($translated) ? $translated : $message, $attribute, $rule, $parameters);
     }
