@@ -18,6 +18,8 @@ final class BladeTest extends TestCase
     private const string E164 = '+261341234567';
     private const int WORDS_NUMBER = 21;
     private const float WORDS_DECIMAL = 0.5;
+    // 30 000 000: 'telopolo tapitrisa' in the standard system.
+    private const int TRADITIONAL_NUMBER = 30_000_000;
     private const int YEAR = 2026;
     private const int MONTH = 11;
     private const int DAY = 23;
@@ -37,6 +39,11 @@ final class BladeTest extends TestCase
         ];
         yield 'words from an int' => ['@mgWords($v)', ['v' => self::WORDS_NUMBER], 'iraika amby roapolo'];
         yield 'words from a float' => ['@mgWords($v)', ['v' => self::WORDS_DECIMAL], 'aotra faingo dimy'];
+        yield 'words in the traditional system' => [
+            '@mgWords($v, \Mdgascar\MdgUtils\Words\NumberSystem::Traditional)',
+            ['v' => self::TRADITIONAL_NUMBER],
+            'telo safatsiroa',
+        ];
         yield 'date from a DateTime' => [
             '@mgDate($v)',
             ['v' => new \DateTimeImmutable(\sprintf('%d-%02d-%02d', self::YEAR, self::MONTH, self::DAY))],

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Mdgascar\MdgUtils\Laravel\Rules;
 
 use Illuminate\Contracts\Validation\ValidationRule;
-use Mdgascar\MdgUtils\Laravel\MdgUtilsServiceProvider;
+use Mdgascar\MdgUtils\Laravel\Translation;
 use Mdgascar\MdgUtils\Phone\PhoneNumber;
 
 /**
@@ -19,17 +19,17 @@ final class MalagasyPhone implements ValidationRule
     public const string NAME = 'mg_phone';
 
     /**
-     * @internal backs the string rule; use the rule object or the string rule instead
+     * Example: `(new MalagasyPhone())->passes('034 12 345 67')` is `true`.
      */
-    public static function passes(mixed $value): bool
+    public function passes(mixed $value): bool
     {
         return PhoneNumber::isValid($value);
     }
 
     public function validate(string $attribute, mixed $value, \Closure $fail): void
     {
-        if (!self::passes($value)) {
-            $fail(MdgUtilsServiceProvider::validationMessageKey(self::NAME))->translate();
+        if (!$this->passes($value)) {
+            $fail(Translation::validationKey(self::NAME))->translate();
         }
     }
 }

@@ -9,6 +9,7 @@ use Mdgascar\MdgUtils\Date\DateStyle;
 use Mdgascar\MdgUtils\Date\MalagasyDate;
 use Mdgascar\MdgUtils\Phone\PhoneNumber;
 use Mdgascar\MdgUtils\Phone\PhoneNumberFormat;
+use Mdgascar\MdgUtils\Words\NumberSystem;
 use Mdgascar\MdgUtils\Words\NumberWords;
 
 /**
@@ -47,14 +48,15 @@ final readonly class Formatter
     }
 
     /**
-     * `@mgWords(21)` prints `iraika amby roapolo`.
+     * `@mgWords(21)` prints `iraika amby roapolo`; pass `NumberSystem::Traditional` for one name
+     * per power of ten: `@mgWords(30000000, NumberSystem::Traditional)` prints `telo safatsiroa`.
      */
-    public function words(int|float|null $number): string
+    public function words(int|float|null $number, NumberSystem $system = NumberSystem::Standard): string
     {
         return match (true) {
             $number === null => self::NOTHING,
-            \is_int($number) => NumberWords::fromInt($number),
-            default => NumberWords::fromFloat($number),
+            \is_int($number) => NumberWords::fromInt($number, $system),
+            default => NumberWords::fromFloat($number, $system),
         };
     }
 

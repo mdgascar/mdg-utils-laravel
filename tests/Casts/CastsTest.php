@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace Mdgascar\MdgUtils\Laravel\Tests\Casts;
 
 use Mdgascar\MdgUtils\Ariary\Ariary;
+use Mdgascar\MdgUtils\Ariary\DecimalSeparator;
+use Mdgascar\MdgUtils\Ariary\Grouping;
+use Mdgascar\MdgUtils\Ariary\SymbolPosition;
 use Mdgascar\MdgUtils\ErrorCode;
+use Mdgascar\MdgUtils\Laravel\AriaryOptions;
+use Mdgascar\MdgUtils\Laravel\Casts\AsAriary;
 use Mdgascar\MdgUtils\Laravel\Tests\Fixtures\Order;
 use Mdgascar\MdgUtils\Laravel\Tests\TestCase;
 use Mdgascar\MdgUtils\MdgUtilsException;
@@ -110,6 +115,13 @@ final class CastsTest extends TestCase
         $this->expectException(MdgUtilsException::class);
 
         new Order(['total' => -1]);
+    }
+
+    public function testACastCanBeGivenItsOwnOptions(): void
+    {
+        $cast = new AsAriary(new AriaryOptions(Grouping::Comma, SymbolPosition::Before, DecimalSeparator::Dot));
+
+        self::assertSame(self::DECIMAL_AMOUNT, $cast->set(new Order(), 'total', '1,500.2', []));
     }
 
     private function assertInvalidType(\Closure $action): void

@@ -7,6 +7,10 @@ namespace Mdgascar\MdgUtils\Laravel\Tests\Rules;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Validator;
+use Mdgascar\MdgUtils\Ariary\DecimalSeparator;
+use Mdgascar\MdgUtils\Ariary\Grouping;
+use Mdgascar\MdgUtils\Ariary\SymbolPosition;
+use Mdgascar\MdgUtils\Laravel\AriaryOptions;
 use Mdgascar\MdgUtils\Laravel\Rules\AriaryAmount;
 use Mdgascar\MdgUtils\Laravel\Rules\MalagasyPhone;
 use Mdgascar\MdgUtils\Laravel\Tests\TestCase;
@@ -97,6 +101,14 @@ final class ValidationTest extends TestCase
 
         self::assertFalse($this->validate('1,500.50', AriaryAmount::NAME)->fails());
         self::assertTrue($this->validate(self::VALID_AMOUNT, new AriaryAmount())->fails());
+    }
+
+    public function testARuleObjectCanBeGivenItsOwnOptions(): void
+    {
+        $rule = new AriaryAmount(new AriaryOptions(Grouping::Comma, SymbolPosition::Before, DecimalSeparator::Dot));
+
+        self::assertTrue($rule->passes('1,500.50'));
+        self::assertFalse($rule->passes(self::VALID_AMOUNT));
     }
 
     private function validate(mixed $value, mixed $rule): ValidatorContract
