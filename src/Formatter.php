@@ -58,6 +58,14 @@ final readonly class Formatter
     }
 
     /**
+     * `@mgOrdinal(3)` prints `fahatelo`; `@mgOrdinal(1)` prints `voalohany`.
+     */
+    public function ordinal(int|string|null $number, NumberSystem $system = NumberSystem::Standard): string
+    {
+        return $number === null ? self::NOTHING : NumberWords::spellOrdinal($number, $system);
+    }
+
+    /**
      * `@mgDate($order->created_at)` prints `23 Novambra 2026`; pass a `DateStyle` for another.
      * Text must be an ISO date such as `2026-11-23`.
      */

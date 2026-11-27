@@ -3,7 +3,7 @@
 [![CI](https://github.com/mdgascar/mdg-utils-laravel/actions/workflows/ci.yml/badge.svg)](https://github.com/mdgascar/mdg-utils-laravel/actions/workflows/ci.yml)
 [![Packagist](https://img.shields.io/packagist/v/mdgascar/mdg-utils-laravel)](https://packagist.org/packages/mdgascar/mdg-utils-laravel)
 
-Laravel validation rules, Eloquent casts and Blade directives for Malagasy mobile phone
+Laravel validation rules, Eloquent casts and Blade directives for Malagasy phone
 numbers, Ariary amounts, number words and dates. Laravel 12 and 13, PHP 8.3+.
 
 All the parsing and formatting comes from [mdgascar/mdg-utils](https://github.com/mdgascar/mdg-utils-php),
@@ -25,13 +25,15 @@ use Mdgascar\MdgUtils\Laravel\Rules\MalagasyPhone;
 
 $request->validate([
     'phone' => ['required', 'mg_phone'],   // or new MalagasyPhone()
+    'mobile' => ['required', 'mg_phone:mobile'], // mobile only, e.g. for SMS
     'total' => ['required', 'mg_ariary'],  // or new AriaryAmount()
 ]);
 ```
 
 | Rule | Passes for | Fails for |
 | --- | --- | --- |
-| `mg_phone` / `MalagasyPhone` | `034 12 345 67`, `+261 34 12 345 67`, `0341234567` | `031 12 345 67` (no operator), anything not text |
+| `mg_phone` / `MalagasyPhone` | `034 12 345 67`, `+261 34 12 345 67`, `020 22 421 19` (fixed line) | `031 12 345 67` (no operator), anything not text |
+| `mg_phone:mobile` / `MalagasyPhone(PhoneLineType::Mobile)` | `034 12 345 67` | `020 22 421 19` (fixed line) |
 | `mg_ariary` / `AriaryAmount` | `Ar 1 500`, `1.500 Ar`, `1 500,50`, `1500` from JSON | `-1`, `1.5` (a dot is not a decimal point by default), `abc` |
 
 Outside a rules array, `(new MalagasyPhone())->passes($value)` returns the same answer as a
@@ -54,7 +56,7 @@ final class Order extends Model
     {
         return [
             'phone' => AsPhoneNumber::class, // string column, stored as E.164: +261341234567
-            'total' => AsAriary::class,      // integer or decimal column
+            'total' => AsAriary::class,      // integer or decimal column, exact digits
         ];
     }
 }
@@ -63,7 +65,8 @@ $order = Order::create(['phone' => '034 12 345 67', 'total' => 'Ar 1 500']);
 
 $order->phone->operator;  // Operator::Yas
 $order->phone->e164;      // '+261341234567'
-$order->total->amount;    // 1500
+$order->total->amount();  // 1500
+$order->total->digits;    // '1500' (stored as is, never rounded)
 $order->total->spell();   // 'dimanjato sy arivo ariary'
 ```
 
@@ -76,6 +79,7 @@ Assigning parses the value, so an invalid phone number or amount throws
 @ariary($order->total)     {{-- Ar 1 500 --}}
 @mgPhone($order->phone)    {{-- 034 12 345 67 --}}
 @mgSpell(2026)             {{-- enina amby roapolo sy roa arivo --}}
+@mgOrdinal(3)              {{-- fahatelo --}}
 @mgDate($order->created_at) {{-- 27 Novambra 2026 --}}
 
 @mgPhone($order->phone, \Mdgascar\MdgUtils\Phone\PhoneNumberFormat::International)

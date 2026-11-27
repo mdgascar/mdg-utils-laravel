@@ -4,6 +4,19 @@
 Merging `dev` into `main` tags the version in the first heading below and creates the
 GitHub release; Packagist picks up the tag.
 
+## 0.4.0
+
+Requires `mdgascar/mdg-utils` ^0.10 (spec 0.9.0).
+
+- **Breaking:** `mg_phone` / `MalagasyPhone` now pass for fixed lines (`020 22 421 19`) and
+  `036` numbers, as the core does. Use `mg_phone:mobile` or
+  `new MalagasyPhone(PhoneLineType::Mobile)` to accept mobile numbers only; it has its own
+  message.
+- **Breaking:** `AsAriary` stores the amount's exact digits (`'1500.2'`) and reads decimal
+  columns without a float, so amounts never round. The core's `Ariary->amount` is now
+  `amount()`; `digits` has the exact text.
+- `@mgOrdinal(3)` prints `fahatelo`.
+
 ## 0.3.0
 
 - **Breaking:** `@mgWords` is now `@mgSpell`, in the domain's words (core 0.9.0). It also reads
